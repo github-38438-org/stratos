@@ -6,9 +6,17 @@ import {
   quotaDefinitionSchemaKey,
   spaceQuotaSchemaKey,
 } from '../helpers/entity-factory';
-import { EntityInlineChildAction } from '../helpers/entity-relations/entity-relations.types';
+import { EntityInlineChildAction, EntityInlineParentAction } from '../helpers/entity-relations/entity-relations.types';
 import { PaginatedAction } from '../types/pagination.types';
 import { CFStartAction, ICFAction } from '../types/request.types';
+
+export const GET_QUOTA_DEFINITION = '[QuotaDefinition] Get one';
+export const GET_QUOTA_DEFINITION_SUCCESS = '[QuotaDefinition] Get one success';
+export const GET_QUOTA_DEFINITION_FAILED = '[QuotaDefinition] Get one failed';
+
+export const GET_SPACE_QUOTA_DEFINITION = '[SpaceQuotaDefinition] Get one';
+export const GET_SPACE_QUOTA_DEFINITION_SUCCESS = '[QuotaDefinition] Get one success';
+export const GET_SPACE_QUOTA_DEFINITION_FAILED = '[QuotaDefinition] Get one failed';
 
 export const GET_QUOTA_DEFINITIONS = '[QuotaDefinitions] Get all';
 export const GET_QUOTA_DEFINITIONS_SUCCESS = '[QuotaDefinitions] Get all success';
@@ -21,6 +29,9 @@ export const GET_SPACE_QUOTA_DEFINITIONS_FAILED = '[QuotaDefinitions] Get all sp
 export const ASSOCIATE_SPACE_QUOTA_DEFINITION = '[QuotaDefinitions] Associate space quota definition';
 export const ASSOCIATE_SPACE_QUOTA_DEFINITION_SUCCESS = '[QuotaDefinitions] Associate space quota definition success';
 export const ASSOCIATE_SPACE_QUOTA_DEFINITION_FAILED = '[QuotaDefinitions] Associate space quota definition failed';
+
+const quotaDefinitionEntitySchema = entityFactory(quotaDefinitionSchemaKey);
+const spaceQuotaEntitySchema = entityFactory(spaceQuotaSchemaKey);
 
 export class GetQuotaDefinitions extends CFStartAction implements PaginatedAction {
   constructor(
@@ -39,7 +50,7 @@ export class GetQuotaDefinitions extends CFStartAction implements PaginatedActio
     GET_QUOTA_DEFINITIONS_SUCCESS,
     GET_QUOTA_DEFINITIONS_FAILED
   ];
-  entity = [entityFactory(quotaDefinitionSchemaKey)];
+  entity = [quotaDefinitionEntitySchema];
   entityKey = quotaDefinitionSchemaKey;
   options: RequestOptions;
   initialParams = {
@@ -50,14 +61,49 @@ export class GetQuotaDefinitions extends CFStartAction implements PaginatedActio
   flattenPagination = true;
 }
 
+export class GetQuotaDefinition extends CFStartAction implements ICFAction, EntityInlineParentAction {
+  constructor(public guid: string, public endpointGuid: string, public includeRelations = [], public populateMissing = true) {
+    super();
+    this.options = new RequestOptions();
+    this.options.url = `quota_definitions/${guid}`;
+    this.options.method = RequestMethod.Get;
+  }
+  actions = [
+    GET_QUOTA_DEFINITION,
+    GET_QUOTA_DEFINITION_SUCCESS,
+    GET_QUOTA_DEFINITION_FAILED
+  ];
+  entity = [quotaDefinitionEntitySchema];
+  entityKey = quotaDefinitionSchemaKey;
+  options: RequestOptions;
+}
+
+export class GetSpaceQuotaDefinition extends CFStartAction implements ICFAction, EntityInlineParentAction {
+  constructor(public guid: string, public endpointGuid: string, public includeRelations = [], public populateMissing = true) {
+    super();
+    this.options = new RequestOptions();
+    this.options.url = `space_quota_definitions/${guid}`;
+    this.options.method = RequestMethod.Get;
+  }
+  actions = [
+    GET_SPACE_QUOTA_DEFINITION,
+    GET_SPACE_QUOTA_DEFINITION_SUCCESS,
+    GET_SPACE_QUOTA_DEFINITION_FAILED
+  ];
+  entity = [spaceQuotaEntitySchema];
+  entityKey = spaceQuotaSchemaKey;
+  options: RequestOptions;
+}
+
 export class GetOrganizationSpaceQuotaDefinitions extends CFStartAction implements PaginatedAction, EntityInlineChildAction {
   parentGuid: string;
 
-  constructor(public paginationKey: string,
-              public orgGuid: string,
-              public endpointGuid: string,
-              public includeRelations: string[] = [],
-              public populateMissing = true) {
+  constructor(
+    public paginationKey: string,
+    public orgGuid: string,
+    public endpointGuid: string,
+    public includeRelations: string[] = [],
+    public populateMissing = true) {
     super();
     this.options = new RequestOptions();
     this.options.url = `organizations/${orgGuid}/space_quota_definitions`;

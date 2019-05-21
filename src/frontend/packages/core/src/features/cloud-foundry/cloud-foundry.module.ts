@@ -27,8 +27,10 @@ import { EditOrganizationStepComponent } from './edit-organization/edit-organiza
 import { EditOrganizationComponent } from './edit-organization/edit-organization.component';
 import { EditSpaceStepComponent } from './edit-space/edit-space-step/edit-space-step.component';
 import { EditSpaceComponent } from './edit-space/edit-space.component';
+import { QuotaDefinitionComponent } from './quota-definition/quota-definition.component';
 import { CloudFoundryEndpointService } from './services/cloud-foundry-endpoint.service';
 import { CloudFoundryOrganizationService } from './services/cloud-foundry-organization.service';
+import { SpaceQuotaDefinitionComponent } from './space-quota-definition/space-quota-definition.component';
 import { CfAdminAddUserWarningComponent } from './tabs/cf-admin-add-user-warning/cf-admin-add-user-warning.component';
 import { CloudFoundryBuildPacksComponent } from './tabs/cloud-foundry-build-packs/cloud-foundry-build-packs.component';
 import {
@@ -165,6 +167,8 @@ import { UsersRolesComponent } from './users/manage-users/manage-users.component
     InviteUsersCreateComponent,
     CloudFoundryInviteUserLinkComponent,
     CfAdminAddUserWarningComponent,
+    QuotaDefinitionComponent,
+    SpaceQuotaDefinitionComponent,
   ],
   providers: [
     EndpointListHelper,
