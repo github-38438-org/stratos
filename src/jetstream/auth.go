@@ -294,12 +294,34 @@ func (p *portalProxy) doLocalLogin(c echo.Context) (*interfaces.LoginRes, error)
 	log.Debug("doLocalLogin")
 	uaaRes, u, err := p.login(c, p.Config.ConsoleConfig.SkipSSLValidation, p.Config.ConsoleConfig.ConsoleClient, p.Config.ConsoleConfig.ConsoleClientSecret, p.getUAAIdentityEndpoint())
 
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+
+	if len(username) == 0 || len(password) == 0 {
+		return uaaRes, u, errors.New("Needs username and password")
+	}
+
+	//TODO: Dont think we need this. Do login here.
+	uaaRes, err = p.getUAATokenWithCreds(skipSSLValidation, username, password, client, clientSecret, endpoint)
+	}
+	if err != nil {
+		return uaaRes, u, err
+	}
+
+	//TODO: Dont think we need this
+	u, err = p.GetUserTokenInfo(uaaRes.AccessToken)
+	if err != nil {
+		return uaaRes, u, err
+	}
+
+	//TODO: Probably don't need to parse local auth response as only the message is used in the http error
+	// So either delete the local auth response definition I made or move it into a better file
 	if err != nil {
 		// Check the Error
 		errMessage := "Access Denied"
 		if httpError, ok := err.(interfaces.ErrHTTPRequest); ok {
 			// Try and parse the Response into UAA error structure
-			authError := &interfaces.UAAErrorResponse{}
+			authError := &interfaces.LocalAuthResponse{}
 			if err := json.Unmarshal([]byte(httpError.Response), authError); err == nil {
 				errMessage = authError.ErrorDescription
 			}
@@ -312,6 +334,7 @@ func (p *portalProxy) doLocalLogin(c echo.Context) (*interfaces.LoginRes, error)
 		return nil, err
 	}
 
+	//Generate a userguid at setup time or from config - possibly on jetstream startup if via config.
 	sessionValues := make(map[string]interface{})
 	sessionValues["user_id"] = u.UserGUID
 
@@ -322,17 +345,23 @@ func (p *portalProxy) doLocalLogin(c echo.Context) (*interfaces.LoginRes, error)
 		return nil, err
 	}
 
+	//Makes sure the client gets the right session expiry time - keep this in
 	err = p.handleSessionExpiryHeader(c)
 	if err != nil {
 		return nil, err
 	}
 
+	//Don't need a token, perhaps add/update last login time instead?
 	_, err = p.saveAuthToken(*u, uaaRes.AccessToken, uaaRes.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
+
+	//Ensure the local user has some kind of admin role configured and we check for it here.
 	uaaAdmin := strings.Contains(uaaRes.Scope, p.Config.ConsoleConfig.ConsoleAdminScope)
 
+	//Can we re-use this?
+	//We may need to add a token expiry value here (and to the localusers table, as we check it elsewhere (though we don't seem to use the value)
 	resp := &interfaces.LoginRes{
 		Account:     u.UserName,
 		TokenExpiry: u.TokenExpiry,
