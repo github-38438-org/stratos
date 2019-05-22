@@ -293,7 +293,7 @@ func (p *portalProxy) localLogin(c echo.Context) error {
 func (p *portalProxy) doLocalLogin(c echo.Context) (*interfaces.LoginRes, error) {
 	log.Debug("doLocalLogin")
 	uaaRes, u, err := p.login(c, p.Config.ConsoleConfig.SkipSSLValidation, p.Config.ConsoleConfig.ConsoleClient, p.Config.ConsoleConfig.ConsoleClientSecret, p.getUAAIdentityEndpoint())
-	res, u, err := 
+
 	if err != nil {
 		// Check the Error
 		errMessage := "Access Denied"
