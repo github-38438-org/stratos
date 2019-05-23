@@ -134,7 +134,7 @@ type LoginRes struct {
 }
 
 type LocalLoginRes struct {
-	User        *ConnectedUser `json:"user"`
+	User *ConnectedUser `json:"user"`
 }
 
 type LoginHookFunc func(c echo.Context) error
@@ -225,6 +225,7 @@ type ConsoleConfig struct {
 	ConsoleAdminScope   string   `json:"console_admin_scope"`
 	ConsoleClient       string   `json:"console_client"`
 	ConsoleClientSecret string   `json:"console_client_secret"`
+	LocalUserAdminScope string   `json:"local_user_scope"`
 	SkipSSLValidation   bool     `json:"skip_ssl_validation"`
 	IsSetupComplete     bool     `json:"is_setup_complete"`
 	UseSSO              bool     `json:"use_sso"`
@@ -268,6 +269,8 @@ type PortalConfig struct {
 	AutoRegisterCFName              string   `configName:"AUTO_REG_CF_NAME"`
 	SSOLogin                        bool     `configName:"SSO_LOGIN"`
 	SSOOptions                      string   `configName:"SSO_OPTIONS"`
+	LocalUser                       string   `configName:"LOCAL_USER"`
+	LocalUserPassword               string   `configName:"LOCAL_USER_PASSWORD"`
 	CookieDomain                    string   `configName:"COOKIE_DOMAIN"`
 	LogLevel                        string   `configName:"LOG_LEVEL"`
 	CFAdminIdentifier               string
